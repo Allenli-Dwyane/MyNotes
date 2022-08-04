@@ -212,3 +212,139 @@ Two concepts of MAC:
 
 1. Type Enforcement (TE)
 2. Multilevel Security (MLS)
+
+### Type Enforcement (TE)
+
+TE introduces type labeling to every file system object, and is a prerequisite for MAC. Objects are labeled with a type, and a policy is defined in the kernel to specify which types are allowed to transition to which other types.
+
+### Multilevel Security (MLS)
+
+## Demo for Running LXC
+
+See [rayden's blog](https://raydenchia.com/linux-containers-lxc/) for detailed description.
+
+### LXC APIs
+APIs for Linux containers in C can be found in [lxxcontainer.h](https://github.com/lxc/lxc/blob/master/src/lxc/lxccontainer.h).
+
+Some of the most frequently used and important APIs are listed below (as well as some interpretation of the source code):
+
+1. the struct lxc_container
+
+    ```c
+    struct lxc_container{
+      char *name; // name of the container
+      char *configfile; // full path to configuration file
+      char *pidfile; // file that stores pid
+      struct lxc_lock *slock; // container semaphore lock
+      struct lxc_lock *privlock; // container private lock
+      int numthreads; // number of references to this container, protected by privlock
+      struct lxc_conf *lxc_conf; // container configuration
+      ...
+      char *config_path; // full path to configuration file
+      bool (*is_defined)(struct lxc_container *c); // if the container exists
+      const char *(*state)(struct lxc_container *c); // state of container.
+      bool (*is_running)(struct lxc_container *c);
+      bool (*freeze)(struct lxc_container *c);
+      bool (*unfreeze)(struct lxc_container *c);
+      pid_t (*init_pid)(struct lxc_container *c); // process ID of the containers init process.
+      bool (*load_config)(struct lxc_container *c, const char *alt_file); // load configuration for the container from a specified file
+      bool (*start)(struct lxc_container *c, int useinit, char * const argv[]);
+      bool (*startl)(struct lxc_container *c, int useinit, ...);
+      bool (*stop)(struct lxc_container *c);
+      ...
+      char *(*config_file_name)(struct lxc_container *c); //Return current config file name.
+      bool (*wait)(struct lxc_container *c, const char *state, int timeout); // Wait for container to reach a particular state.
+      bool (*set_config_item)(struct lxc_container *c, const char *key, const char *value); // Set a key/value configuration option.
+      bool (*destroy)(struct lxc_container *c);
+      bool (*save_config)(struct lxc_container *c, const char *alt_file); // save current configuration to the specified file
+    
+      bool (*create)(struct lxc_container *c, const char *t, const char *bdevtype,
+			struct bdev_specs *specs, int flags, char *const argv[]);
+
+      bool (*createl)(struct lxc_container *c, const char *t, const char *bdevtype,
+			struct bdev_specs *specs, int flags, ...);
+      ...
+    };
+    ```
+
+    An important note here is that changing the order of struct members is an API change, as callers will end up having the wrong offset when calling a function.
+
+2. the setup of a container
+   
+      ```c
+      struct lxc_container *lxc_container_new(const char *name, const char *configpath); // name: container name, configpath: full path to configuration file, return: a newly allocated lxc_container pointer or NULL on error
+      ```
+
+3. creation of a container
+   
+      ```c
+      struct lxc_container{
+        ...
+        /*
+        lxc_container c: container
+        const char *t: template to execute to instantiate the root filesystem and adjust the configuration.
+        const char *bdevtype: bdevtype Backing store type to use (if \c NULL, \c dir will be used).
+        struct bdev_specs *specs: Additional parameters for the backing store (for example LVM volume group to use).
+        int flags: LXC_CREATE_* options
+        ...: command line, e.g., "-d", "ubuntu", "-r", NULL
+        */
+        bool (*createl)(struct lxc_container *c, const char *t, const char *bdevtype,
+			struct bdev_specs *specs, int flags, ...);
+    
+        ...
+      };
+      ```
+
+  4. get and drop reference to a container
+
+      ```c
+      int lxc_container_get(struct lxc_container *c);
+      int lxc_container_put(struct lxc_container *c)
+      ```
+
+### Running LXC via command-line
+
+Steps are listed below:
+
+1. create a user config directory for lxc (if it does not exist) and the default configuration file.
+
+    ```bash
+    $ mkdir -p ~/.config/lxc
+    $ touch ~/.config/lxc/default.conf
+    ```
+
+2. creating a container
+   
+    ```bash
+    lxc-create {-n name} [-f config_file] {-t template} [-B backingstore] [-- template-options]
+    ```
+
+    Four default templates are specified in /user/share/lxc/templates/
+
+    1. download: downloads pre-built images and unpacks them
+    2. local:  consumes local images that were built with the distrobuilder build-lxc command
+    3. busybox:  consumes local images that were built with the distrobuilder build-lxc command
+    4. oci: creates an application container from images in the Open Containers Image (OCI) format
+
+    After creation, a container directory will be created at ~/.local/share/lxc/example/
+
+3. Running a container:
+   
+    ```bash
+    lxc-start [container name]
+    ```
+
+    Attaching container:
+
+    ```bash
+    lxc-attach [container name]
+    ```
+
+    **Notice that we are root inside the container, even though we created an unprivileged container. This behavior is the result of UID namespaces.**
+
+4. Networking
+   
+    Require prerequistes on iptables, detailed knowledge can be found [here](https://wiki.archlinux.org/title/Iptables) as well as [this blog](https://www.frozentux.net/iptables-tutorial/iptables-tutorial.html#TRAVERSINGOFTABLES).
+
+    *This part may make more sense to me after carefully taking a course on computer networks*.
+
