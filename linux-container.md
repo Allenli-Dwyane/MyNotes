@@ -124,3 +124,91 @@ The limits set in each subsystem can be found in
 ```
 /sys/fs/cgroup/[subsystem name]
 ```
+
+## Namespaces
+
+Definition (*Note that Linux namespaces are different from the common-sense namespaces widely used in other computer science areas*):
+
+* A namespace is an abstract object that encapsulates resources so that said resources have a view restricted to other resources in the same namespace.
+* With the introduction of the PID namespaces, multiple process trees (instead of a single tree with the root of 'init' process), which are disjoint, can co-exist.
+
+7 kinds of namespaces in Linux kernel:
+
+1. PID – isolates processes
+2. Network – isolates networking
+3. User – isolates User/Group IDs
+4. UTS – isolates hostname and fully-qualified domain name (FQDN)
+5. Mount – isolates mountpoints
+6. cgroup – isolates the cgroup sysfs root directory
+7. IPC – isolates IPC/message queues
+
+Namespaces defined on the system can be found via procfs.With namespaces introduced, the processes in a container X are unaware of the resources in another container Y.
+
+Three system calls associated with namespaces (can be seen in detail via the manual page of namespaces):
+
+```bash
+The namespaces API
+       As  well as various /proc files described below, the namespaces API in‐
+       cludes the following system calls:
+
+       clone(2)
+              The clone(2) system call creates a new process.   If  the  flags
+              argument  of  the  call  specifies one or more of the CLONE_NEW*
+              flags listed below, then new namespaces  are  created  for  each
+              flag,  and  the  child  process  is made a member of those name‐
+              spaces.  (This system call also implements a number of  features
+              unrelated to namespaces.)
+
+       setns(2)
+              The  setns(2)  system call allows the calling process to join an
+              existing namespace.  The namespace to join is  specified  via  a
+              file  descriptor  that refers to one of the /proc/[pid]/ns files
+              described below.
+       unshare(2)
+              The unshare(2) system call moves the calling process  to  a  new
+              namespace.   If  the flags argument of the call specifies one or
+              more of the CLONE_NEW* flags listed below, then  new  namespaces
+              are  created  for  each  flag, and the calling process is made a
+              member of those namespaces.  (This system call also implements a
+              number of features unrelated to namespaces.)
+
+       ioctl(2)
+              Various  ioctl(2) operations can be used to discover information
+              about   namespaces.    These   operations   are   described   in
+              ioctl_ns(2). 
+```
+**Important notes here**: A PID namespace can only be created at the time a new process is spawned using clone(), while other namespaces can also be created using unshare() system call. (see this [website](https://www.toptal.com/linux/separation-anxiety-isolating-your-system-with-linux-namespaces) for details).
+
+The /proc/[pid]/ns directory:
+
+* Each process has a /proc/[pid]/ns/ subdirectory  containing  one  entry for each namespace that supports being manipulated by setns(2).
+
+**Distinguishing namespaces from cgroups**: namespaces limit resource **view** (i.e., how many resources that can be seen by each namespace, not that the resources that are allocated/assigned), while cgroups limit resource **utilization** (i.e., how many resources that can be used by each cgroup, not the resources that can be seen).
+
+More on the namespaces can be found in the [RedHat blog](https://www.redhat.com/sysadmin/7-linux-namespaces), [Developers blog](https://www.toptal.com/linux/separation-anxiety-isolating-your-system-with-linux-namespaces) and the [Linux manual page](https://man7.org/linux/man-pages/man7/namespaces.7.html).
+## Seccomp
+
+Definition:
+
+* seccomp protects against the threat of damage by a malicious process via syscalls, by limiting the number of syscalls a process is allowed to execute. 
+
+In lxc, seccomp filters can be accessed through the container configuration file
+
+```
+~/.local/share/lxc/<container_name>/config
+```
+
+And the default disallowed system calls are specified in
+
+```
+/usr/share/lxc/config/common.seccomp
+```
+
+## Mandatory Access Control (MAC)
+
+MAC is a centralized authorization mechanism that operates on the philosophy that information belongs to an organization (and not the individual members). 
+
+Two concepts of MAC:
+
+1. Type Enforcement (TE)
+2. Multilevel Security (MLS)
