@@ -41,3 +41,35 @@ failure where garbage collection acts as an amplification
 mechanism
 
 4. Proposes three example applications to experimentally reproduce metastable failures.
+
+### [Demystifying and Checking Silent Semantic Violations in Large Distributed Systems](https://www.usenix.org/conference/osdi22/presentation/lou-demystifying)
+
+Motivation: Bugs that silently violate a system's semantics without apparent anomalies (silent semantic failures) can cause prolonged damage and are hard o detect/address.
+
+Major contribution: *Oathkeeper*, a tool that automatically infers semantic rules from past failures and enforces the rules at runtime to detect new failures.
+
+### [RESIN: A Holistic Service for Dealing with Memory Leaks in Production Cloud Infrastructure](https://www.usenix.org/conference/osdi22/presentation/lou-resin)
+
+Motivation: memory leaks in large-scale systems, such as Microsoft Azure, are the potentials of disastrous system failures. And they are hard to deal with, especially in a production cloud infrastructure setting. Moreover, detecting and fixing such problems is time-consuming.
+
+Previous works: 
+
+1. static analysis: not efficient enough in detecting such bugs
+   
+2. dynamic tracking: effective in doing so, but too costly.
+
+Contributions of this paper: RESIN
+
+1. highly scalable to address the memory leak issues in large cloud infrastructure. It analyzes all the components on millions of nodes on Azure.
+2. low overheads introduced and non-intrusive.
+3. good accuracy.
+
+### [Cancellation in Systems: An Empirical Study of Task Cancellation Patterns and Failures](https://www.usenix.org/conference/osdi22/presentation/sethi)
+
+Motivation: task cancellation (which stops the execution of a software component) is crucial for the current execution of today's systems. And efficient and correct task cancellation is non-trivial, e.g., a cancelled task may be depended on by other tasks. But few prior works have focused on the problems of task cancellation.
+
+Contributions of this paper: "attempts to provide an in-depth analysis of cancellation usage and problems in popular software applications across multiple languages, which we hope will help guide cancellation-related systems research and design."
+
+### [Automatic Reliability Testing For Cluster Management Controllers](https://www.usenix.org/conference/osdi22/presentation/sun)
+
+    
