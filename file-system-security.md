@@ -11,6 +11,7 @@ This note is dedicated to papers related to file system security.
 6. [Push-Button Verification of File Systems via Crash Refinement](https://www.usenix.org/conference/osdi16/technical-sessions/presentation/sigurbjarnarson) OSDI'16
 7. [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662) SOSP'19
 8. [Specifying and Checking File System Crash-Consistency Models](https://dl.acm.org/doi/10.1145/2872362.2872406) ASPLOS'16
+9. [GoJournal: a verified, concurrent, crash-safe journaling system](https://www.usenix.org/conference/osdi21/presentation/chajed) OSDI'21
 
 ## [Finding Crash-Consistency Bugs with Bounded Black-Box Crash Testing](https://www.usenix.org/conference/osdi18/presentation/mohan)
 
