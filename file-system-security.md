@@ -5,7 +5,7 @@ This note is dedicated to papers related to file system security (verification n
 
 1. [Finding Crash-Consistency Bugs with Bounded Black-Box Crash Testing](https://www.usenix.org/conference/osdi18/presentation/mohan) OSDI'18
 2. [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662) SOSP'19
-3. [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422)
+3. [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422) SOSP'15
 4. [RAZZER: Finding Kernel Race Bugs through Fuzzing](https://ieeexplore.ieee.org/abstract/document/8835326/) IEEE S&P'19
 5. [Unleashing Use-Before-Initialization Vulnerabilities in the Linux Kernel Using Targeted Stack Spraying.](https://www.ndss-symposium.org/ndss2017/ndss-2017-programme/unleashing-use-initialization-vulnerabilities-linux-kernel-using-targeted-stack-spraying/) NDSS'17
 6. [A Study of Linux File System Evolution](https://www.usenix.org/conference/fast13/technical-sessions/presentation/lu) FAST'13
@@ -90,10 +90,20 @@ The authors have already demonstrated the limitations of B3, which I will not re
 
 Also, B3's techniques are similar to fuzzing because both need to generate lots of inputs to try out the bugs. Perhaps here's where I can dive into?
 
+## [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422)
+
+Woo..Finished reading this paper. Pretty interesting but there are some ambiguous points in this paper. Worth some improvement.
+
+### Semantic Bugs
+
+This paper and the following paper (i.e., HYDRA) both stress on finding semantic bugs. So I guess I should first conclude what semantic bugs refer to and why are they attracting so much attention.
+
+**Semantic bugs** mostly refer to those bugs which violate high-level rules of invariants. Hmmm..this seems like a pretty ambiguous definition. It is due to that semantic bugs come in various forms including violations of agreed property (e.g., crash-consistency), non-conformance to specifications and etc. As we can tell from the types and definition of semantic bugs, they are different from the memory bugs as use-after-free in that they do not cause obvious consequences! For instance, violations of POSIX standard may be due to the ambiguous definition of POSIX, thus different file system developers may interpret these definitions in different ways.
+
+With 
+
+
 ## [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662)
 
 Read this paper a while ago. Need to re-read it! Fuzzing is kind of like the technique used in B3.
 
-## [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422)
-
-Woo..Finished reading this paper. Pretty interesting but there are some ambiguous points in this paper. Worth some improvement.
