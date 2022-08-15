@@ -90,20 +90,75 @@ The authors have already demonstrated the limitations of B3, which I will not re
 
 Also, B3's techniques are similar to fuzzing because both need to generate lots of inputs to try out the bugs. Perhaps here's where I can dive into?
 
-## [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422)
+## [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422) and [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662)
 
-Woo..Finished reading this paper. Pretty interesting but there are some ambiguous points in this paper. Worth some improvement.
+Woo..Finished reading this paper ([Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422)). Pretty interesting but there are some ambiguous points in this paper. Worth some improvement.
 
+Read this paper ([Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662)) a while ago. Need to re-read it! Fuzzing is kind of like the technique used in B3.
 ### Semantic Bugs
 
 This paper and the following paper (i.e., HYDRA) both stress on finding semantic bugs. So I guess I should first conclude what semantic bugs refer to and why are they attracting so much attention.
 
-**Semantic bugs** mostly refer to those bugs which violate high-level rules of invariants. Hmmm..this seems like a pretty ambiguous definition. It is due to that semantic bugs come in various forms including violations of agreed property (e.g., crash-consistency), non-conformance to specifications and etc. As we can tell from the types and definition of semantic bugs, they are different from the memory bugs as use-after-free in that they do not cause obvious consequences! For instance, violations of POSIX standard may be due to the ambiguous definition of POSIX, thus different file system developers may interpret these definitions in different ways.
+**Semantic bugs** mostly refer to those bugs which violate high-level rules of invariants. Hmmm..this seems like a pretty ambiguous definition. It is due to that semantic bugs come in various forms including violations of agreed property (e.g., crash-consistency), non-conformance to specifications and etc. As we can tell from the types and definition of semantic bugs, they are different from the memory bugs as use-after-free in that they do not cause obvious consequences! For instance, violations of POSIX standard may be due to the ambiguous definition of POSIX, thus different file system developers may interpret the definition in different ways, but these bugs are invisible from time to time since they may not cause severe damage.
 
-With 
+With all these ambiguity in POSIX, different implementations from one file system to another and invisible consequences, finding semantic bugs are difficult yet important, since such bugs can cause damage that is not obvious to developers. To address such issues, JUXTA is proposed in [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422) and HYDRA is proposed in [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662). I will examine the two tools from the high level in the rest of this note.
 
+### JUXTA in [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422)
 
-## [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662)
+The structure of JUXTA comprises of a sequence of stages, and five checkers based on the stages. Remerber, what JUXTA tries to achieve is a general method that infers latent semantic bugs across different file system implementations without knowing domain-specific knowledge.
 
-Read this paper a while ago. Need to re-read it! Fuzzing is kind of like the technique used in B3.
+* Stage One. In this stage, JUXTA merges each file system's files into one large file. This stage is called *the source code merge stage*. The reason for this combination is that current static anaylyzer can perform inter-procedural anaylysis only within a single file.
+  
+* Stage Two. In this stage, JUXTA constructs a control-flow graph (CFG) for a function and symbolically explores a CFG from the entry to the end. Also, to prevent the path explosion, JUXTA sets a limit on the maximum inline basic blocks and functions in this stage.
 
+* Stage Three. Since different file systems exhibit different symbols, JUXTA needs to represent symbolic expressions using universally comparable symbols. In this stage, JUXTA uses symbol canonicalization to achieve so.
+
+* Stage Four. JUXTA creates a per-file system path database, which can be easily used to access the extracted organized information.
+
+* Stage Five. This stage is **important** as it provides a basis for all the application checkers implemented on the four stages. Basically, JUXTA uses two statistical models. One is histogram based  comparison, the other is based on entropy. 
+    
+    1. Histogram-based model. What this model mainly does is that JUXTA first encodes integer ranges into multidimensional histograms for comparison and uses distances among histograms to find deviant behaviors in different file systems. That is to say JUXTA uses histogram as a measurement tool of each file system, and use the average of VFS histogram as the standard one, if any file system deviates from this average too far, it is considered as having semantic bugs.
+    2. Entropy-based comparison. This comparsion is used to find deviation in an event. Basically JUXTA calculates the entropy of each VFS interface for an event, and a VFS interface whose corresponding entropy is small (except for zero) can be  onsidered as buggy.
+
+All the applications, such as checkers or file-system specification extracters, are mainly based on the two statistical models above. So that I won't go into details about the applications. The efficacy of the two models are key to the performance of JUXTA!!
+
+### HYDRA in [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662)
+
+Finally, HYDRA! I love this name lol (Hail Hydra! Just kidding, watched a lot of Marvel movies before). All right, back to track. HYDRA is proposed to be a general framework for finding semantic bugs, including crash inconsistency, POSIX violations and file system-specific logic bugs. The key technique employed in HYDRA is an old friend, fuzzing (hola! Nice to see you again). As described in the article, HYDRA is "a comprehensive framework that complements existing and future bug checkers by providing a set of commonly required components, all tailored to file system fuzzing". Thus, we can see some existing tools used in HYDRA as well as some new faces.  
+
+The process of HYDRA framework can be described below:
+
+1. feeds the seed to to the fuzzer, which generates mutated file system image and syscalls accordingly. Wait a minute, what is the seed? The seed consists of a file system image and a sequence of syscalls.
+2. then the generated file system image and syscalls (we call them the test cases hereafter) are sent to a clean library OS-based executor, which mounts the image and executes the syscalls.
+3. after execution, a bitmap is generated and the bug-checking dispatcher invokes the necessary run-time checks. And the dispatcher collects the feedback from the checker and merges it with the bitmap into a fuzzing feedback report.
+4. the test case is saved if a new coverage is reported or marked as interesting. Otherwise, it is discarded.
+5. if a new bugs is found, the test case will be sent for replay and confirmation.
+
+As we can tell from the process, the most important part is in 3, which refers to generating a bitmap and **bug-checking**. Therefore, HYDRA integrates already-existing bug checkers as well as a novel crash-consistency checker (SYMC3) into this part. 
+
+The novel SYSMC3 checker, which is proposed by the authors, "emulates the syscalls to derive a symbolic representation of all allowed post-crash states according to the file system-specific notion of crash consistency and checks whether the recovered image falls into one of the states." Here I just copy the text from the paper to this note because of the laziness of human beings (not my fault, it is the nature)! This text concisely describes the algorithm for crash-consistency bugs. In short, SYMC3 tracks the history of changes of each c3_inode (which records the historage until persisted to storage) also until they are persisted. SYMC3 also take snapshots of memory state and disk state, generates allowed states and checks whether recovery file system state falls into the allowed ones. If not, a crash-consistency bug is reported.
+
+Other checkers are employed from existing tools. I won't talk too much about it since I have not read these papers...(I will one day! A flag has been created!)
+
+## My Thoughts on the Aforementioned Three Papers
+
+All the three papers concentrate on finding semantic bugs in file systems. B3 especially focuses on crash-consistency bugs, JUXTA on semantic violation bugs and HYDRA on all semantic bugs, but also proposes a novel crash-consistency checker.
+
+These papers are really inspiring. Some things I have learned from the three papers are:
+
+1. perhaps starting a new idea from some observations is a good way. As in B3, the authors proposed this approach and according implementation based on their case study on the reported crash-consistency bugs. Finding the commonalities are important.
+2. sometimes straight-forward ideas may prove efficient. HYDRA uses history-tracking in SYMC3, JUXTA uses two simple statistical models as the basis.
+
+Some questions about these three papers:
+
+1. In B3, is the workload generation too simple? As to my understanding, the generated workload feels like random inputs generated within a boundary, which is without feedback! It looks like fuzzing but different in many ways. Isn't this method too brutal? It's like enumerating all possible inputs, and no feedback is provided? Not to mention that this "boundary" is also simple, the authors just assigns a number, like 32, to be its boundary. And once the boundary is set, it is no longer modified during the whole process.
+2. In JUXTA, the statistical models are simple, **but** the results are not ideal...the false positive rate is over 80%!! That means every time I get some results from JUXTA, 4 out of 5 may not be bugs and I still need to look into the 4 false bugs to determine whether they are bugs. I think it is the statistical models that make the false positvie rate so high. For example, in the entropy-based model, I do not understand fully how the probability of each event is determined. I mean, if the probability is assigned based on the observed facts, that would mean a great deal of time. Or if the probability is determined by the authors, then how can the entropy be appropriate? Moreover, is entropy really a good fit for this?
+3. In HYDRA, fuzzing a file system costs time since each time we need to mount the file system...
+
+Some thoughts on improvement:
+
+* combining B3 and fuzzing, B3 uses black-box but without feedback, fuzzing is with feedback but needs to modify file system each time. Combining both may be a solution.
+
+* construct a better model for the bug-detection scenario. I have not come up with any, but I think maybe my inter-discipline knowledge might help.
+
+These thoughts are naive..I welcome any comments and discussion!
