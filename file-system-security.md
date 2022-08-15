@@ -40,6 +40,56 @@ The authors did a great study on the crash-consistency bugs reported over the la
 
 ### B3: An Approach to Crash Testing in Bounded Black-Box (Not Actual Implementation!!)
 
+Given the two key insights as thickened above, the authours proposed an approach named B3, which stands for bounded black-box. The authors described B3 as follows:
+
+```
+B3 is a black-box testing approach built upon the insight that most reported crash-consistency bugs can be found by systematically testing small sequences of file-system operations on a new file system. 
+B3 exercises the file system through its system-call API, and observes the file-system behavior via read and write IO.
+```
+
+One of the most important advantages of B3 is that **B3 does not require annotating or modifying file-system source codes**. Well, this is great! As for what I have learned from reading all these bug-finding papers, which exploited techniques as fuzzing or so, these techniques, especially fuzzing, need to modify the file-system source code to find bugs. The novelty of B3 makes it easier to check file system bugs since it just generates file system operations to test the crash-consistency of file systems. Awesome!
+
+Next, let's what B3 mainly does. How does B3 actually works? The above definition does not describe clearly its routine. Here's the answer: B3 just generates sequences of file system operations, such as read() and write(), within a bounded space (Aha? What is this?). Then it tests all these generated sequences (i.e., executes the sequences) and crashes the system each time a persistence point is hit (Hmm..?). At last, B3 recovers from the crash and checks whether the file system recovers back to the right state.
+
+We have successfully gotten the main idea of this paper! But there are still some ambiguity in the B3 process. We need to figure them out.
+
+* crash points: **B3 only simulates crashes after each persistence point in the workload**. That is to say, only after the user intentionally performs persistence operations (e.g., sync() or other similar operations), B3 treats it as point that deserves to be crashed and tested. This is based on our strict definition on crash-consistency, rememeber? If you don't, go back and read the definition again carefully!
+
+* bounds: B3 bounds the file system operations generated in a workload in three ways. 
+  
+    1. number of operations
+    2. files and directories in workload
+    3. data operations
+    4. initial file-system state
+
+### Implementation (CrashMonkey and Ace)
+
+To achieve the B3 approach, the authors built two tools. One is Ace (full name is Automatic Crash Explorer), which is used to **exhaustively** generates workloads within the given bounds. The other is CrashMonkey, which is used for **record-and-replay techniques to simulate a crash in the middle of the workload and test if the file system recovers to a correct state after the crash**. Ok, we will examine these two tools in detail next.
+
+* CrashMonkey employs the key technique called **record-and-replay**, which is to record all the information from the given workload and replay this workload until crash. CrashMonkey achieves so by using three phases:
+
+    1. **Phase One**:profiles the workload by collecting information about all file-system operations and I/O requests made during the workload.
+    2. **Phase Two**:replays I/O requests until a persistence point to create a **crash state**. This **crash state** is important!! It represents the state of storage if the system had crashed after a persistence operation completed. Then CrashMonkey mounts the file system again and recovers it. Another thing CrashMonkey does at this phase is that it captures a reference file system image named oracle by safely unmounting it so the file system completes any pending operations or checkpointing.
+    3. **Still Phase Two!!** Well, the phase two of CrashMonkey might seem a little confusing, but it actually is a pretty simple one: the **crash state** is like the answer written by the students in an exam, and the **oracle** is the right answer given by the teacher. What we need to do is compare the **crash state** to the right answer. That's what Phase Three is for.
+    4. **Phase Three**: CRASHMONKEY’s AutoChecker tests for correctness by comparing the persisted files and directories in the oracle with the crash state after recovery.
+
+* Ace uses four phases to exhaustively generate workloads within the given bounds:
+  
+  1. First, Ace is given the bound of X operations in a workload. For instance, X equals 2 means only two file-system operations are allowed in this worload. In this phase, what Ace does is select X file-system operations to make a *skeleton*.
+  2. Next, Ace needs to select parameters for the file-system operations.
+  3. Then, Ace adds persistence points to the skeleton (i.e., sync() or other similar operations).
+  4. Last, Ace adds dependencies. Since every file/directory needs to exist before being taken in file-system operations, Ace must create these files/directories beforehand (e.g., mkdir() before calling a directory).
+
+### Results and My Thoughts (Most Important Part!)
+
+Well, I won't go into details of the experimental results of B3. The results show that this approach is pretty efficient in finding bugs. But it generally takes pretty much to find all these bugs: the authors needed to deploy CrashMonkey and Ace in cloud to compute the results (which costs money and time).
+
+And here comes the important part! My thoughts! 
+
+The authors have already demonstrated the limitations of B3, which I will not repeat in this note. My thoughts will go beyond these. The strategy exploited in B3 is rather straight forward, but such straightforward strategy comes from the careful study into the reported crash-consistency bugs. I think this is pretty important to my future researches: you need to first observe some commonalities, and based on which propose a method that solves the problem. And one more thing: the simpler yet more efficient method, the better!
+
+Also, B3's techniques are similar to fuzzing because both need to generate lots of inputs to try out the bugs. Perhaps here's where I can dive into?
+
 ## [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662)
 
 Read this paper a while ago. Need to re-read it! Fuzzing is kind of like the technique used in B3.
