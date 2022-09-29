@@ -27,3 +27,38 @@ Some articles/talks worthing reading are:
 1. Andy Rudoff's articles on USENIX: [Programming Models for Emerging NonVolatile Memory Technologies](https://www.usenix.org/system/files/login/articles/08_rudoff_040-045_final.pdf), [Persistent Memory Programming](https://www.usenix.org/system/files/login/articles/login_summer17_07_rudoff.pdf)
 2. Intel [persistent memory docs](https://www.intel.com/content/www/us/en/developer/topic-technology/persistent-memory/overview.html)
 3. [Persistent Memory Documentation](https://docs.pmem.io/persistent-memory/)
+
+### The first question here: **what is** Persistent Memory?
+
+Before we get started, a few confusing concepts need to be addressed beforehand. You might come across many terms on new types of "memory", such as non-volatile memory (NVM), storage-class memory and our main character today, persistent memory. Well, these "memory" nouns look quite distinct, but they can all be categorized according to the definition of persistent memory. That is to say, when you encounter these confusing nouns in the future, just keep in mind that these little bastards are all persistent memory. In the rest of this note, I may use non-volatile memory (NVM) or persistent memory (PM or pmem) in an interleaving style.
+
+Let's move to the main part.
+
+Peristent memory, as we can easily tell by its name, provides a nice property of **persistency** while functioning as memory. More than "peristence", persistent memory also provides properties of byte-addressability, load/store memory access. Whoa! Its properties are amazing, how about the performance compared to current memory such as DRAM? According to [Lenovo](https://lenovopress.lenovo.com/lp1528.pdf), Intel Optane PM (a type of mainstream persistent memory on market) acquires higher capacity, cheaper price than DRAM, but suffers from higher latency and smaller bandwith. Its role in the memory hierarchy is shown below:
+
+![Pmem hierarchy](./src/pmem_storage_pyramid.jpg) 
+> source: https://docs.pmem.io/persistent-memory/getting-started-guide/introduction
+
+### The second question: what is **so good** about Persistent Memory?
+
+As mentioned above, persistent memory provides persistency, byte-addressability and direct memory access (DAX) using load/store instructions. In this part, we will focus mainly on how these properties make PM great again! (Just a informal joke lol..)
+
+* DAX with load/store instructions
+  
+  This property requires the support from PM-aware file systems. With such support, user-space applications may use load/store instructions to directly manipulate memory in PM without going through the page cache.
+
+* byte-addressability
+  
+  This property is highly associated with cache. Contents from PM can be cached before being used. Cache (refer to L3 cache mostly) provides programmers with so-called cache-line granularity, which are treated by programmers as bytes.
+
+* persistency
+  
+  Finally! We come to the most outstanding feature of PM. This property is simple: any data that is stored on the PM is "persisted", meaning that you will not lose such data after power down or restart. Persisting such data can be achieved using the store instruction.
+
+Whoo..let's take a breath. Just looking over at the nice properties of PM, you might can help wondering what an amazing thing PM is. With PM, I can write whatever codes I like and do not need to worry about whether an unexpected crash may cause data loss or some misfunction of my software. Just get a PM-aware file system and use the store instruction to directly access PM, there would be no need to worry about cache during crash and everything would be great! 
+
+Only if things were this simple...Dreams are fascinating but reality sucks.
+
+### The third question: what is **not so good** about Persistent Memory?
+
+
