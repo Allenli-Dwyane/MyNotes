@@ -25,3 +25,5 @@ Hopefully this will be my PhD research project.
 Some articles/talks worthing reading are:
 
 1. Andy Rudoff's articles on USENIX: [Programming Models for Emerging NonVolatile Memory Technologies](https://www.usenix.org/system/files/login/articles/08_rudoff_040-045_final.pdf), [Persistent Memory Programming](https://www.usenix.org/system/files/login/articles/login_summer17_07_rudoff.pdf)
+2. Intel [persistent memory docs](https://www.intel.com/content/www/us/en/developer/topic-technology/persistent-memory/overview.html)
+3. [Persistent Memory Documentation](https://docs.pmem.io/persistent-memory/)
