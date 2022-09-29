@@ -61,4 +61,36 @@ Only if things were this simple...Dreams are fascinating but reality sucks.
 
 ### The third question: what is **not so good** about Persistent Memory?
 
+To answer this question, first we need to really really think about another question: when accessing PM with DAX, setting aside the L3 cache, does PM really have nothing to do with cache? Do we really just use store instruction and the data is directly persisted to PM. Is it really really the case? If not, what are we missing?
 
+I bet some people have noticed that there is one cache I can in no way avoid: the cache in CPU. Well, this is the Achilles' heel of PM. PM can not avoid the cache in CPU, thus when a store instruction is issued, there is a high chance that such data is cached in the CPU and might be lost permanently due to a sudden system crash.
+
+![pmem cpu](./src/pmem_cpu.png)
+> source: https://www.usenix.org/system/files/login/articles/login_summer17_07_rudoff.pdf
+
+What's worse is that since there are a huge anount of instructions executed in one CPU per second, the eviction of cache lines inside CPU (i.e., L1, L2 cache) is hard to estimate or monitor due to the cache prediction mechanism deployed in the hardware. Therefore, if PM programmers only use the store instructions to persist data, it is hard to tell whether the data is still cached inside CPU or has already been persisted. And some naive programmers might just think that their data are well persisted after the store instruction and forget about all the other rules, possibly causing some undetected software bugs.
+
+### The fourth question: what challenges is Persistent Memory facing?
+
+Let's first continue with our third question. Well, since we can not directly monitor the eviction of CPU cache lines simply using some high-level codes, is there nothing else we could do to address this problem? Of course not! Thank god the world is not filled with software guys, we have hardware engineers to help us out. 
+
+In the x86 architecture, we have some instructions to take control of the CPU cache lines: CLWB, CLFLUSH, SFENCE and etc. Most of details are shown in the figure below.
+
+![pmem x86](src/pmem_x86.png)
+> source: https://www.usenix.org/system/files/login/articles/login_summer17_07_rudoff.pdf
+
+> SFENCE instruction: Orders processor execution relative to all memory stores prior to the SFENCE instruction. The processor ensures that every store prior to SFENCE is globally visible before any store after SFENCE becomes globally visible. The SFENCE instruction is ordered with respect to memory stores, other SFENCE instructions, MFENCE instructions, and any serializing instructions (such as the CPUID instruction). It is not ordered with respect to memory loads or the LFENCE instruction.
+
+We now have a solution to our third question!! To ensure that a store to PM is actually persisted, we can issue a CLWB instruction followed by a SFENCE instruction, so that this store instruction is guaranteed to be persistent. But such instructions can not be used at random will since they are expensive, which may reduce a system's performance, according to [Neal et al. their paper of OSDI'20](https://www.usenix.org/conference/osdi20/presentation/neal).
+
+Therefore here comes our first challenge:
+
+**How to properly keep programming to PM secure (i.e., ensure that data is actually persisted) and efficient (i.e., use persistence instruction as CLWB+SFENCE in an appropriate manner)?**
+
+Moreover, PM is expected to play an important role in future memory hierarchy and expose itself to programmers in a similar way as DRAM, but currently, most of our memory data structures are designed for DRAM or so. 
+
+And here comes our second challenge:
+
+**How to fit PM into today's memory programming world in a elegant way so that programmers will write codes as usual (i.e., DRAM programming) and do not need to make much adaption?**
+
+## [RECIPE: Converting Concurrent DRAM Indexes to Persistent-Memory Indexes](https://dl.acm.org/doi/10.1145/3341301.3359635)
