@@ -7,13 +7,8 @@ This note is dedicated to papers related to file system security (verification n
 2. [Finding Semantic Bugs in File Systems with an Extensible Fuzzing Framework](https://dl.acm.org/doi/10.1145/3341301.3359662) SOSP'19
 3. [Cross-checking Semantic Correctness: The Case of Finding File System Bugs](https://dl.acm.org/doi/10.1145/2815400.2815422) SOSP'15
 4. [A Study of Linux File System Evolution](https://www.usenix.org/conference/fast13/technical-sessions/presentation/lu) FAST'13
-5. [Witcher: Systematic Crash Consistency Testing for Non-Volatile Memory Key-Value Stores](https://www3.cs.stonybrook.edu/~dongyoon/papers/SOSP-21-Witcher.pdf) SOSP'21
-6. [Hippocrates: Healing Persistent Memory Bugs Without Doing Any Harm Extended Abstract](https://dl.acm.org/doi/abs/10.1145/3445814.3446694) ASPLOS'21
-7. [RECIPE: Converting Concurrent DRAM Indexes to Persistent-Memory Indexes](https://dl.acm.org/doi/10.1145/3341301.3359635) SOSP'19
-8. [Write-Optimized and High-Performance Hashing Index Scheme for Persistent Memory](https://www.usenix.org/conference/osdi18/presentation/zuo) OSDI'18
-9. [PMTest: A Fast and Flexible Testing Framework for Persistent Memory Programs](https://dl.acm.org/doi/10.1145/3297858.3304015) ASPLOS'19
-10. [AGAMOTTO: How Persistent is your Persistent Memory Application?](https://www.usenix.org/conference/osdi20/presentation/neal) OSDI'20
-11. [Evaluating File System Reliability on Solid State Drives](https://www.usenix.org/conference/atc19/presentation/jaffer) USENIX ATC'19
+5.  [Evaluating File System Reliability on Solid State Drives](https://www.usenix.org/conference/atc19/presentation/jaffer) USENIX ATC'19
+
 
 ## [Finding Crash-Consistency Bugs with Bounded Black-Box Crash Testing](https://www.usenix.org/conference/osdi18/presentation/mohan)
 
