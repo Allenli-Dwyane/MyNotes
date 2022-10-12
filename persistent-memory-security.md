@@ -19,6 +19,12 @@ Hopefully this will be my PhD research project.
 13. [Crash Consistency in Encrypted Non-Volatile Main Memory Systems](https://ieeexplore.ieee.org/document/8327018) HPCA'18
 14. [PMFuzz: Test Case Generation for Persistent Memory Programs](https://www.cs.virginia.edu/~smk9u/Liu_PMFuzz_ASPLOS21.pdf) ASPLOS'21
 15. [Atlas: Leveraging Locks for Non-volatile Memory Consistency](https://dl.acm.org/doi/pdf/10.1145/2714064.2660224) OOPSLA'14
+16. [PACTree: A High Performance Persistent Range Index Using PAC Guidelines](https://multics69.github.io/pages/pubs/pactree-kim-sosp21.pdf) SOSP'21
+17. [NVTraverse: In NVRAM Data Structures, the Destination Is More Important Than the Journey](https://par.nsf.gov/servlets/purl/10216395) PLDI'20
+18. [Jaaru: Efficiently Model Checking Persistent Memory Programs](http://web.cs.ucla.edu/~harryxu/papers/jaaru-asplos21.pdf) ASPLOS'21
+19. [Evaluating Persistent Memory Range Indexes](http://www.vldb.org/pvldb/vol13/p574-lersch.pdf) VLDB'21
+20. [Persistent State Machines for Recoverable In-memory Storage Systems with NVRam](https://www.usenix.org/system/files/osdi20-zhang_wen.pdf) OSDI'20
+21. [iDO: Compiler-Directed Failure Atomicity for Nonvolatile Memory](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8574546) MICRO'18
 
 ## Persistent Memory Background Knowledge
 
@@ -94,3 +100,7 @@ And here comes our second challenge:
 **How to fit PM into today's memory programming world in a elegant way so that programmers will write codes as usual (i.e., DRAM programming) and do not need to make much adaption?**
 
 ## [RECIPE: Converting Concurrent DRAM Indexes to Persistent-Memory Indexes](https://dl.acm.org/doi/10.1145/3341301.3359635)
+
+### Motivation
+
+* 
