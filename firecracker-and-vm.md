@@ -150,4 +150,6 @@ The novelty of Firecracker lies in that as a VMM, Firecracker is able to adjust 
 
 Anyways to crack this service?
 
-I can not think of many potential scenarios. Since everycode inside MicroVM is untrusted, it would be hard for attackers to use their own codes to crash this service. Perhaps some vulnerability might occur during the re-use of each MicroVM? I am pretty confused.
+I can not think of many potential scenarios. Since everycode inside MicroVM is untrusted, it would be hard for attackers to use their own codes to crash this service, especially there is a 'jailer' employed. Perhaps some vulnerability might occur during the re-use of each MicroVM?
+
+But since that Firecracker is an open source VMM, possibily I can find some vulnerabilities in its source code.
