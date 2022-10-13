@@ -25,6 +25,7 @@ Hopefully this will be my PhD research project.
 19. [Evaluating Persistent Memory Range Indexes](http://www.vldb.org/pvldb/vol13/p574-lersch.pdf) VLDB'21
 20. [Persistent State Machines for Recoverable In-memory Storage Systems with NVRam](https://www.usenix.org/system/files/osdi20-zhang_wen.pdf) OSDI'20
 21. [iDO: Compiler-Directed Failure Atomicity for Nonvolatile Memory](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8574546) MICRO'18
+22. [Persistency semantics of the Intel-X86 architecture](https://dl.acm.org/doi/pdf/10.1145/3371079) POPL'19
 
 ## Persistent Memory Background Knowledge
 
