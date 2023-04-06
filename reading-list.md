@@ -16,4 +16,7 @@
 6. Feb. 1st "FStream: Managing Flash Streams in the File System" FAST'18
 7. Feb. 2nd "Fully Automatic Stream Management for Multi-Streamed SSDs Using Program Contexts" FAST'19
 8. Feb. 3rd "Separating Data via Block Invalidation Time Inference for Write Amplification Reduction in Log-Structured Storage" FAST'22
-9. 
+9. Feb. 10th "BlockFlex: Enabling Storage Harvesting with Software-Defined Flash in Modern Cloud Platforms" OSDI'22
+10. Mar. 10th "IvySyn: Automated Vulnerability Discovery in Deep Learning Frameworks" Usenix Security'23
+11. Mar. 27th "Workload-Aware Elastic Stripping With Hot Data Identification for SSD RAID Arrays" TCAD' 2016
+12. Apr. 6th "FLASHSHARE: Punching Through Server Storage Stack from Kernel to Firmware for Ultra-Low Latency SSDs" OSDI'2018
